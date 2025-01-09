@@ -1,0 +1,15 @@
+{
+  "name": "food-loss-reduction",
+  "version": "1.0.0",
+  "description": "Food Loss Reduction System",
+  "scripts": {
+    "start": "concurrently \"cd backend && npm start\" \"cd frontend && npm start\"",
+    "install-all": "npm install && cd frontend && npm install && cd ../backend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^6.2.0"
+  },
+  "dependencies": {
+    "food-loss-reduction": "file:"
+  }
+}
