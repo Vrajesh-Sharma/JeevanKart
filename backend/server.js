@@ -6,6 +6,7 @@ const cron = require('node-cron');
 const checkNearExpiryItems = require('./utils/inventoryCheck');
 
 const app = express();
+const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors());
