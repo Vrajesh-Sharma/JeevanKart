@@ -92,19 +92,6 @@ const Home = () => {
               <img src="https://raw.githubusercontent.com/Vrajesh-Sharma/JeevanKart/refs/heads/main/frontend/src/assets/Screenshot%20(486).png" alt="Food Waste Reduction" style={{ width: '100%', height: 'auto' }} />
             </Paper>
           </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ borderRadius: '12px', overflow: 'hidden' }}>
-              <iframe 
-                width="100%" 
-                height="315" 
-                src="Frontend/src/Video.mp4" 
-                title="YouTube video" 
-                frameBorder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                allowFullScreen
-              ></iframe>
-            </Paper>
-          </Grid>
         </Grid>
       </Box>
 
