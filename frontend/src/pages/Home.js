@@ -23,7 +23,7 @@ const Home = () => {
     }}>
       <Box
         sx={{
-          mt: 8,
+          mt: 4,
           mb: 4,
           textAlign: 'center', 
           padding: 4, 
