@@ -87,6 +87,11 @@ const Home = () => {
               <img src="https://raw.githubusercontent.com/Vrajesh-Sharma/JeevanKart/refs/heads/main/frontend/src/assets/Food_waste.jpg" alt="Food Waste Reduction" style={{ width: '100%', height: 'auto' }} />
             </Paper>
           </Grid>
+            <Grid item xs={12} md={6}>
+            <Paper elevation={3} sx={{ borderRadius: '12px', overflow: 'hidden' }}>
+              <img src="https://raw.githubusercontent.com/Vrajesh-Sharma/JeevanKart/refs/heads/main/frontend/src/assets/Screenshot%20(486).png" alt="Food Waste Reduction" style={{ width: '100%', height: 'auto' }} />
+            </Paper>
+          </Grid>
           <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ borderRadius: '12px', overflow: 'hidden' }}>
               <iframe 
