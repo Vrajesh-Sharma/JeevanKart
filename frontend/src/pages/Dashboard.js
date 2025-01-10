@@ -152,13 +152,13 @@ const Dashboard = () => {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Container maxWidth="xl" sx={{ mt: 4 }}>
             <Fade in timeout={1000}>
                 <Grid container spacing={3} sx={{ mb: 4 }}>
                     <Grid item xs={12} sm={6} md={3}>
                         <Card 
                             sx={{ 
-                                background: 'linear-gradient(135deg, #6B73FF 0%, #000DFF 100%)',
+                                background: 'linear-gradient(135deg,rgb(82, 90, 241) 0%,rgba(0, 13, 255, 0.72) 100%)',
                                 color: 'white',
                                 borderRadius: 3,
                                 boxShadow: '0 4px 20px 0 rgba(0,0,0,0.12)'
@@ -167,9 +167,9 @@ const Dashboard = () => {
                         <CardContent>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Box>
-                                        <Typography variant="subtitle2" sx={{ opacity: 0.7 }}>TOTAL DONATIONS</Typography>
+                                        <Typography variant="subtitle2" >TOTAL DONATIONS</Typography>
                                         <Typography variant="h4">{stats.totalDonations}</Typography>
-                                        <Typography variant="subtitle2" sx={{ color: '#4CAF50' }}>
+                                        <Typography variant="subtitle2" >
                                             +{Math.round(stats.totalDonations * 0.1)} this week
                             </Typography>
                                     </Box>
@@ -195,7 +195,7 @@ const Dashboard = () => {
                     <Grid item xs={12} sm={6} md={3}>
                         <Card 
                             sx={{ 
-                                background: 'linear-gradient(135deg, #FF9966 0%, #FF5E62 100%)',
+                                background: 'linear-gradient(135deg,rgba(255, 74, 74, 0.81) 0%, #FF5E62 100%)',
                                 color: 'white',
                                 borderRadius: 3,
                                 boxShadow: '0 4px 20px 0 rgba(0,0,0,0.12)'
@@ -204,9 +204,9 @@ const Dashboard = () => {
                         <CardContent>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Box>
-                                        <Typography variant="subtitle2" sx={{ opacity: 0.7 }}>ITEMS NEAR EXPIRY</Typography>
+                                        <Typography variant="subtitle2">ITEMS NEAR EXPIRY</Typography>
                                         <Typography variant="h4">{stats.nearExpiry}</Typography>
-                                        <Typography variant="subtitle2" sx={{ color: '#FF9800' }}>
+                                        <Typography variant="subtitle2" >
                                             +{Math.round(stats.nearExpiry * 0.1)} this week
                             </Typography>
                                     </Box>
@@ -232,7 +232,7 @@ const Dashboard = () => {
                     <Grid item xs={12} sm={6} md={3}>
                         <Card 
                             sx={{ 
-                                background: 'linear-gradient(135deg, #FFD740 0%, #FFC107 100%)',
+                                background: 'linear-gradient(135deg,rgba(241, 199, 46, 0.92) 0%, #FFC107 100%)',
                                 color: 'white',
                                 borderRadius: 3,
                                 boxShadow: '0 4px 20px 0 rgba(0,0,0,0.12)'
@@ -241,9 +241,9 @@ const Dashboard = () => {
                         <CardContent>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Box>
-                                        <Typography variant="subtitle2" sx={{ opacity: 0.7 }}>TOTAL VALUE AT RISK</Typography>
+                                        <Typography variant="subtitle2" >TOTAL VALUE AT RISK</Typography>
                                         <Typography variant="h4">₹{stats.totalValue.toFixed(2)}</Typography>
-                                        <Typography variant="subtitle2" sx={{ color: '#F44336' }}>
+                                        <Typography variant="subtitle2" >
                                             -{Math.round(stats.totalValue * 0.05)} this week
                             </Typography>
                                     </Box>
@@ -269,7 +269,7 @@ const Dashboard = () => {
                     <Grid item xs={12} sm={6} md={3}>
                         <Card 
                             sx={{ 
-                                background: 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)',
+                                background: 'linear-gradient(135deg,rgba(76, 175, 79, 0.74) 0%, #2E7D32 100%)',
                                 color: 'white',
                                 borderRadius: 3,
                                 boxShadow: '0 4px 20px 0 rgba(0,0,0,0.12)'
@@ -278,9 +278,9 @@ const Dashboard = () => {
                             <CardContent>
                                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Box>
-                                        <Typography variant="subtitle2" sx={{ opacity: 0.7 }}>ACTIVE DONORS</Typography>
+                                        <Typography variant="subtitle2">ACTIVE DONORS</Typography>
                                         <Typography variant="h4">{recentDonors.length}</Typography>
-                                        <Typography variant="subtitle2" sx={{ color: '#4CAF50' }}>
+                                        <Typography variant="subtitle2" >
                                             +{Math.round(recentDonors.length * 0.05)} this week
                                         </Typography>
                                     </Box>
@@ -310,12 +310,12 @@ const Dashboard = () => {
                     <Card 
                         sx={{ 
                             mt: 4, 
-                            borderRadius: 3,
+                            borderRadius: 1,
                             boxShadow: '0 4px 20px 0 rgba(0,0,0,0.08)',
                             overflow: 'hidden'
                         }}
                     >
-                        <Box sx={{ p: 3, background: 'linear-gradient(135deg, #6B73FF 0%, #000DFF 100%)', color: 'white' }}>
+                        <Box sx={{ p: 3, background: 'linear-gradient(135deg, rgb(82, 90, 241) 0%, #000DFF 100%)', color: 'white' }}>
                             <Typography variant="h5">Near Expiry Items</Typography>
                             <Typography variant="subtitle2" sx={{ opacity: 0.7 }}>
                                 Items requiring immediate attention
@@ -330,7 +330,6 @@ const Dashboard = () => {
                                         <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f8f9fa' }}>Original Price</TableCell>
                                         <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f8f9fa' }}>Discounted Price</TableCell>
                                         <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f8f9fa' }}>Discount</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold', backgroundColor: '#f8f9fa' }}>Action</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -361,13 +360,13 @@ const Dashboard = () => {
                                                     {discount}%
                                                 </span>
                                             </TableCell>
-                                                <TableCell>
+                                                {/* <TableCell>
                                                     <Tooltip title="View Details">
                                                         <IconButton>
                                                             <InfoIcon />
                                                         </IconButton>
                                                     </Tooltip>
-                                                </TableCell>
+                                                </TableCell> */}
                                         </TableRow>
                                     );
                                 })}
