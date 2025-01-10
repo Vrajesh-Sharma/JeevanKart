@@ -84,7 +84,7 @@ const Home = () => {
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ borderRadius: '12px', overflow: 'hidden' }}>
-              <img src="https://fastercapital.com/i/The-Ultimate-Guide-to-Food-Waste-Reduction-Initiatives--Tips-and-Strategies--Tips-and-Strategies-Tips-for-Reducing-Food-Waste-at-Home.webp" alt="Food Waste Reduction" style={{ width: '100%', height: 'auto' }} />
+              <img src="JeevanKart\frontend\src\assets\Food_waste.jpg" alt="Food Waste Reduction" style={{ width: '100%', height: 'auto' }} />
             </Paper>
           </Grid>
           <Grid item xs={12} md={6}>
