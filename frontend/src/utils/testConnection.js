@@ -13,4 +13,4 @@ export const testSupabaseConnection = async () => {
         console.error('Supabase connection error:', error);
         return false;
     }
-}; 
+};

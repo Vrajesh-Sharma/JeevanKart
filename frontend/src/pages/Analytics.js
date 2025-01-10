@@ -23,21 +23,50 @@ const Analytics = () => {
 
     useEffect(() => {
         fetchAnalyticsData();
+
+        // Listen for inventory updates
+        const handleInventoryUpdate = () => {
+            fetchAnalyticsData();
+        };
+
+        window.addEventListener('inventoryUpdated', handleInventoryUpdate);
+
+        // Set up real-time subscription
+        const subscription = supabase
+            .channel('inventory_changes')
+            .on('postgres_changes', 
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'inventory'
+                },
+                (payload) => {
+                    fetchAnalyticsData();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            window.removeEventListener('inventoryUpdated', handleInventoryUpdate);
+            subscription.unsubscribe();
+        };
     }, []);
 
     const fetchAnalyticsData = async () => {
         try {
-            // Fetch basic stats
+            // Fetch all inventory items
             const { data: inventoryData, error: inventoryError } = await supabase
                 .from('inventory')
                 .select('*');
 
             if (inventoryError) throw inventoryError;
 
-            // Calculate stats
+            // Calculate stats excluding completed items
+            const activeItems = inventoryData.filter(item => item.status !== 'completed');
+            
             const costSaving = calculateCostSavings(inventoryData);
-            const foodLossValue = calculateFoodLossValue(inventoryData);
-            const itemsSold = inventoryData.filter(item => item.status === 'sold').length;
+            const foodLossValue = calculateFoodLossValue(activeItems); // Only active items
+            const itemsSold = inventoryData.filter(item => item.status === 'completed').length;
             const wasteReduction = calculateWasteReduction(inventoryData);
 
             setStats({
@@ -51,8 +80,8 @@ const Analytics = () => {
             const trends = calculateMonthlyTrends(inventoryData);
             setMonthlyTrends(trends);
 
-            // Calculate category-wise loss
-            const categoryData = calculateCategoryLoss(inventoryData);
+            // Calculate category-wise loss (excluding completed items)
+            const categoryData = calculateCategoryLoss(activeItems);
             setCategoryLoss(categoryData);
 
         } catch (error) {
@@ -83,16 +112,10 @@ const Analytics = () => {
 
     const calculateFoodLossValue = (data) => {
         return data.reduce((sum, item) => {
-            // Calculate value of expired items
-            if (item.status === 'expired') {
-                return sum + (item.price * item.quantity);
-            }
-            // Add value of items that will expire within 3 days
-            else if (item.status === 'near-expiry') {
-                const daysToExpiry = calculateDaysLeft(item.expiry_date);
-                if (daysToExpiry <= 3) {
+            // Only include pending and available items in risk calculation
+            if ((item.status === 'pending' || item.status === 'available') && 
+                new Date(item.expiry_date) > new Date()) {
                     return sum + (item.price * item.quantity);
-                }
             }
             return sum;
         }, 0);
@@ -101,7 +124,7 @@ const Analytics = () => {
     const calculateWasteReduction = (data) => {
         const totalItems = data.reduce((sum, item) => sum + item.quantity, 0);
         const savedItems = data.reduce((sum, item) => {
-            if (item.status === 'sold' || item.status === 'donated') {
+            if (item.status === 'completed' || item.status === 'donated') {
                 return sum + item.quantity;
             }
             return sum;
@@ -113,6 +136,8 @@ const Analytics = () => {
         const months = {};
         const foodLoss = {};
         const costSavings = {};
+        const completedItems = {};
+        const pendingItems = {}; // Added pending items tracking
 
         // Initialize arrays for each month
         for (let i = 0; i < 12; i++) {
@@ -120,6 +145,8 @@ const Analytics = () => {
             months[i] = monthName;
             foodLoss[monthName] = 0;
             costSavings[monthName] = 0;
+            completedItems[monthName] = 0;
+            pendingItems[monthName] = 0;
         }
 
         // Calculate values for each month
@@ -130,8 +157,12 @@ const Analytics = () => {
             if (item.status === 'expired') {
                 foodLoss[monthName] += item.price * item.quantity;
             }
-            if (item.status === 'sold' && item.discounted_price) {
-                costSavings[monthName] += (item.price - item.discounted_price) * item.quantity;
+            if (item.status === 'completed') {
+                completedItems[monthName] += 1;
+                costSavings[monthName] += (item.price - (item.discounted_price || 0)) * item.quantity;
+            }
+            if (item.status === 'pending') {
+                pendingItems[monthName] += item.price * item.quantity;
             }
         });
 
@@ -144,6 +175,14 @@ const Analytics = () => {
             {
                 id: "Cost Savings",
                 data: Object.entries(costSavings).map(([x, y]) => ({ x, y }))
+            },
+            {
+                id: "Completed Items",
+                data: Object.entries(completedItems).map(([x, y]) => ({ x, y }))
+            },
+            {
+                id: "Pending Value",
+                data: Object.entries(pendingItems).map(([x, y]) => ({ x, y }))
             }
         ];
     };
@@ -151,9 +190,9 @@ const Analytics = () => {
     const calculateCategoryLoss = (data) => {
         const categoryLoss = {};
 
-        // Calculate loss for each category
+        // Calculate loss for each category (excluding completed items)
         data.forEach(item => {
-            if (item.status === 'expired') {
+            if (item.status === 'expired' && item.status !== 'completed') {
                 const loss = item.price * item.quantity;
                 categoryLoss[item.category] = (categoryLoss[item.category] || 0) + loss;
             }
@@ -338,4 +377,4 @@ const Analytics = () => {
     );
 };
 
-export default Analytics; 
+export default Analytics;

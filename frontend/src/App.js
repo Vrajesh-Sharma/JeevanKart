@@ -12,6 +12,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Admin from './pages/Admin';
+import TopDonors from './pages/TopDonors';
 
 const theme = createTheme({
   palette: {
@@ -56,6 +57,7 @@ function App() {
                 </ProtectedRoute>
               } 
             />
+            <Route path="/top-donors" element={<TopDonors />} />
           </Routes>
         </Router>
       </ThemeProvider>
@@ -63,4 +65,4 @@ function App() {
   );
 }
 
-export default App; 
+export default App;

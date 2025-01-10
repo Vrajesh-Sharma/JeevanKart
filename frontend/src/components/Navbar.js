@@ -53,7 +53,7 @@ const Navbar = () => {
                             color: 'inherit'
                         }}
                     >
-                        Food Loss Reduction
+                        JeevanKart
                     </Typography>
 
                     <Box sx={{ display: 'flex', gap: 2 }}>
@@ -76,7 +76,7 @@ const Navbar = () => {
                             component={Link}
                             to="/donations"
                         >
-                            Donations
+                            Deals
                         </Button>
                         <Button
                             color="inherit"
@@ -84,6 +84,13 @@ const Navbar = () => {
                             to="/analytics"
                         >
                             Analytics
+                        </Button>
+                        <Button
+                            color="inherit"
+                            component={Link}
+                            to="/top-donors"
+                        >
+                            Top Donors
                         </Button>
 
                         {user ? (
@@ -150,4 +157,4 @@ const Navbar = () => {
     );
 };
 
-export default Navbar; 
+export default Navbar;

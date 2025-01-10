@@ -16,7 +16,7 @@ import { supabase } from '../config/supabase';
 
 const Login = () => {
     const navigate = useNavigate();
-    const [mode, setMode] = useState('login'); // 'login' or 'create'
+    const [mode, setMode] = useState('login');
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -32,18 +32,6 @@ const Login = () => {
         setError('');
 
         try {
-            // First check if email exists in admin_users table
-            const { data: adminData, error: adminError } = await supabase
-                .from('admin_users')
-                .select('email')
-                .eq('email', formData.email)
-                .single();
-
-            if (adminError || !adminData) {
-                throw new Error('Invalid admin credentials');
-            }
-
-            // If admin exists, attempt login
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: formData.email,
                 password: formData.password,
@@ -52,6 +40,17 @@ const Login = () => {
             if (error) throw error;
 
             if (data?.user) {
+                // Check if user is an admin
+                const { data: adminData, error: adminError } = await supabase
+                    .from('admin_users')
+                    .select('*')
+                    .eq('auth_id', data.user.id)
+                    .single();
+
+                if (adminError || !adminData) {
+                    throw new Error('Not authorized as admin');
+                }
+
                 navigate('/admin');
             }
         } catch (error) {
@@ -73,35 +72,59 @@ const Login = () => {
         }
 
         try {
+            // First check if email already exists in auth.users
+            const { data: existingUser } = await supabase.auth.signInWithPassword({
+                email: formData.email,
+                password: 'dummy-password' // We're just checking if the email exists
+            });
+
+            if (existingUser?.user) {
+                throw new Error('An account with this email already exists');
+            }
+
             // Create auth user
-            const { data: authData, error: authError } = await supabase.auth.signUp({
+            const { data, error: signUpError } = await supabase.auth.signUp({
                 email: formData.email,
                 password: formData.password,
-            });
-
-            if (authError) throw authError;
-
-            // Create admin user record
-            const { error: adminError } = await supabase
-                .from('admin_users')
-                .insert([
-                    {
-                        email: formData.email,
+                options: {
+                    data: {
                         full_name: formData.fullName
                     }
-                ]);
-
-            if (adminError) throw adminError;
-
-            alert('Account created successfully! Please check your email for verification.');
-            setMode('login');
-            setFormData({
-                email: '',
-                password: '',
-                confirmPassword: '',
-                fullName: ''
+                }
             });
+
+            if (signUpError) throw signUpError;
+
+            if (data?.user) {
+                // Wait a moment for the auth user to be fully created
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Create admin user record
+                const { error: adminError } = await supabase
+                    .from('admin_users')
+                    .insert([{
+                        auth_id: data.user.id,
+                        email: formData.email,
+                        full_name: formData.fullName
+                    }])
+                    .select();
+
+                if (adminError) {
+                    console.error('Admin creation error:', adminError);
+                    throw new Error('Error creating admin account');
+                }
+
+                alert('Account created successfully! Please check your email for verification.');
+                setMode('login');
+                setFormData({
+                    email: '',
+                    password: '',
+                    confirmPassword: '',
+                    fullName: ''
+                });
+            }
         } catch (error) {
+            console.error('Error creating account:', error);
             setError(error.message);
         } finally {
             setLoading(false);
@@ -194,4 +217,4 @@ const Login = () => {
     );
 };
 
-export default Login; 
+export default Login;

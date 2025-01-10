@@ -19,4 +19,4 @@ export const checkNearExpiryItems = async () => {
     } catch (error) {
         console.error('Error checking near-expiry items:', error);
     }
-}; 
+};

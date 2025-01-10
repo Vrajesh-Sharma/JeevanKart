@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Container,
   Grid,
-  Card,
-  CardContent,
   Typography,
   Button,
   Dialog,
@@ -12,7 +10,14 @@ import {
   TextField,
   MenuItem,
   DialogActions,
-  Alert
+  Alert,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper
 } from '@mui/material';
 import { supabase } from '../config/supabase';
 import { useAuth } from '../context/AuthContext';
@@ -35,7 +40,20 @@ const Inventory = () => {
 
   useEffect(() => {
     fetchInventory();
+  
+    // Listen for the custom event
+    const handleInventoryUpdate = () => {
+      console.log('Inventory update detected');
+      fetchInventory();
+    };
+  
+    window.addEventListener('inventoryUpdated', handleInventoryUpdate);
+  
+    return () => {
+      window.removeEventListener('inventoryUpdated', handleInventoryUpdate);
+    };
   }, []);
+  
 
   const fetchInventory = async () => {
     try {
@@ -60,7 +78,7 @@ const Inventory = () => {
     try {
       const requiredFields = ['product_name', 'category', 'quantity', 'expiry_date', 'price'];
       const missingFields = requiredFields.filter(field => !newItem[field]);
-      
+
       if (missingFields.length > 0) {
         setAlert({
           show: true,
@@ -121,60 +139,49 @@ const Inventory = () => {
           {alert.message}
         </Alert>
       )}
-      <Grid container spacing={3}>
-        {user && (
-          <Grid item xs={12}>
-            <Button 
-              variant="contained" 
-              color="primary" 
-              onClick={() => setOpen(true)}
-            >
-              Add New Item
-            </Button>
-          </Grid>
-        )}
-        {inventory.map((item) => (
-          <Grid item xs={12} sm={6} md={4} key={item.id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>
-                  {item.product_name}
-                </Typography>
-                <Typography>Category: {item.category}</Typography>
-                <Typography>Quantity: {item.quantity}</Typography>
-                <Typography>
-                  Status: 
+      {user && (
+        <Button 
+          variant="contained" 
+          color="primary" 
+          onClick={() => setOpen(true)}
+          sx={{ mb: 2 }}
+        >
+          Add New Item
+        </Button>
+      )}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow style={{ backgroundColor: '#f5f5f5' }}>
+              <TableCell><Typography fontWeight="bold">Product Name</Typography></TableCell>
+              <TableCell><Typography fontWeight="bold">Category</Typography></TableCell>
+              <TableCell><Typography fontWeight="bold">Quantity</Typography></TableCell>
+              <TableCell><Typography fontWeight="bold">Status</Typography></TableCell>
+              <TableCell><Typography fontWeight="bold">Expiry Date</Typography></TableCell>
+              <TableCell><Typography fontWeight="bold">Source</Typography></TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {inventory.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell><Typography fontWeight="bold">{item.product_name}</Typography></TableCell>
+                <TableCell>{item.category}</TableCell>
+                <TableCell>{item.quantity}</TableCell>
+                <TableCell>
                   <span style={{ 
                     color: item.status === 'available' ? 'green' : 
                            item.status === 'near-expiry' ? 'orange' : 'red' 
                   }}>
                     {item.status}
                   </span>
-                </Typography>
-                {item.price > 0 && (
-                  <Typography>
-                    Price: ${item.price}
-                    {item.discounted_price && (
-                      <span style={{ color: 'red', marginLeft: '10px' }}>
-                        Discounted: ${item.discounted_price}
-                      </span>
-                    )}
-                  </Typography>
-                )}
-                <Typography>
-                  Expiry: {new Date(item.expiry_date).toLocaleDateString()}
-                </Typography>
-                <Typography>
-                  Source: {item.donor ? `Donated by ${item.donor}` : 'Added by Admin'}
-                </Typography>
-                {item.location && (
-                  <Typography>Location: {item.location}</Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
-      </Grid>
+                </TableCell>
+                <TableCell>{new Date(item.expiry_date).toLocaleDateString()}</TableCell>
+                <TableCell>{item.donor ? `Donated by ${item.donor}` : 'Added by Admin'}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>Add New Inventory Item</DialogTitle>
@@ -249,4 +256,4 @@ const Inventory = () => {
   );
 };
 
-export default Inventory; 
+export default Inventory;

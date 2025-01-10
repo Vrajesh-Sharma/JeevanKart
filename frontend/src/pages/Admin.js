@@ -26,6 +26,25 @@ const Admin = () => {
 
     useEffect(() => {
         fetchDonations();
+        // Set up real-time subscription
+        const subscription = supabase
+            .channel('donations_changes')
+            .on('postgres_changes', 
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'donations'
+                },
+                (payload) => {
+                    fetchDonations();
+                    window.dispatchEvent(new CustomEvent('inventoryUpdated'));
+                }
+            )
+            .subscribe();
+
+        return () => {
+            subscription.unsubscribe();
+        };
     }, []);
 
     const fetchDonations = async () => {
@@ -45,12 +64,22 @@ const Admin = () => {
     const handleStatusChange = async (donationId, newStatus) => {
         setLoading(true);
         try {
-            const { error } = await supabase
+            // Update donation status
+            const { error: donationError } = await supabase
                 .from('donations')
                 .update({ status: newStatus })
                 .eq('id', donationId);
 
-            if (error) throw error;
+            if (donationError) throw donationError;
+
+            // Update corresponding inventory item
+            const { error: inventoryError } = await supabase
+                .from('inventory')
+                .update({ status: newStatus })
+                .eq('donor_id', donationId);
+
+            if (inventoryError) throw inventoryError;
+
             fetchDonations();
         } catch (error) {
             console.error('Error updating status:', error);
@@ -74,12 +103,12 @@ const Admin = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>Donor</TableCell>
-                                    <TableCell>Items</TableCell>
-                                    <TableCell>Quantity</TableCell>
-                                    <TableCell>Date</TableCell>
-                                    <TableCell>Status</TableCell>
-                                    <TableCell>Actions</TableCell>
+                                    <TableCell style={{ fontWeight: 'bold', backgroundColor: 'f5f5f5' }}>Donor</TableCell>
+                                    <TableCell style={{ fontWeight: 'bold', backgroundColor: 'f5f5f5' }}>Items</TableCell>
+                                    <TableCell style={{ fontWeight: 'bold', backgroundColor: 'f5f5f5' }}>Quantity</TableCell>
+                                    <TableCell style={{ fontWeight: 'bold', backgroundColor: 'f5f5f5' }}>Status</TableCell>
+                                    <TableCell style={{ fontWeight: 'bold', backgroundColor: 'f5f5f5' }}>Date</TableCell>
+                                    <TableCell style={{ fontWeight: 'bold', backgroundColor: 'f5f5f5' }}>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -89,26 +118,23 @@ const Admin = () => {
                                         <TableCell>{donation.food_items}</TableCell>
                                         <TableCell>{donation.quantity}</TableCell>
                                         <TableCell>
+                                            <span style={{
+                                                color: donation.status === 'completed' ? 'green' : 
+                                                       donation.status === 'pending' ? 'orange' : 'inherit'
+                                            }}>
+                                                {donation.status}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell>
                                             {new Date(donation.created_at).toLocaleDateString()}
                                         </TableCell>
                                         <TableCell>
-                                            <FormControl size="small">
-                                                <Select
-                                                    value={donation.status}
-                                                    onChange={(e) => handleStatusChange(donation.id, e.target.value)}
-                                                    disabled={loading}
-                                                >
-                                                    <MenuItem value="pending">Pending</MenuItem>
-                                                    <MenuItem value="completed">Completed</MenuItem>
-                                                </Select>
-                                            </FormControl>
-                                        </TableCell>
-                                        <TableCell>
                                             <Button
-                                                variant="outlined"
+                                                variant="contained"
+                                                color="primary"
                                                 size="small"
+                                                disabled={donation.status === 'completed' || loading}
                                                 onClick={() => handleStatusChange(donation.id, 'completed')}
-                                                disabled={loading || donation.status === 'completed'}
                                             >
                                                 Mark Complete
                                             </Button>
@@ -124,4 +150,4 @@ const Admin = () => {
     );
 };
 
-export default Admin; 
+export default Admin;
